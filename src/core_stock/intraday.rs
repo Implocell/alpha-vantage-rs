@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::utils::de_from_str_to_float;
+use crate::utils::{de_from_str_to_float, de_from_str_to_int};
 
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -55,9 +55,9 @@ pub struct TimeSeriesItem {
     pub close: f32,
     #[serde(
         rename(deserialize = "5. volume", serialize = "volume"),
-        deserialize_with = "de_from_str_to_float"
+        deserialize_with = "de_from_str_to_int"
     )]
-    pub volume: f32,
+    pub volume: i64,
 }
 
 fn get_timeseries_data(company: &str) -> Result<TimeSeries, Box<dyn std::error::Error>> {

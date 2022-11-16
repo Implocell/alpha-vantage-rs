@@ -1,4 +1,5 @@
-use alpha_vantage_rs::fundemental_data::company_information;
+use alpha_vantage::core_stock::intraday;
+use alpha_vantage::fundemental_data::company_information;
 
 #[test]
 fn it_serializes_company_information() {
@@ -55,7 +56,9 @@ fn it_serializes_company_information() {
     let res: Result<company_information::CompanyInformation, serde_json::Error> =
         serde_json::from_str(company_information_json);
 
-    assert!(!res.is_err(), "err on serializing to struct");
+    if res.is_err() {
+        res.as_ref().unwrap();
+    }
 
     let u_res = res.unwrap();
 
@@ -65,4 +68,55 @@ fn it_serializes_company_information() {
     );
     assert_eq!(u_res.market_capitalization, 123145404000);
     assert_eq!(u_res.peratio, 22.56);
+}
+
+#[test]
+fn it_serializes_timeseries() {
+    let time_series_5min_daily = r#"
+    {
+        "Meta Data": {
+            "1. Information": "Intraday (5min) open, high, low, close prices and volume",
+            "2. Symbol": "IBM",
+            "3. Last Refreshed": "2022-11-15 16:15:00",
+            "4. Interval": "5min",
+            "5. Output Size": "Compact",
+            "6. Time Zone": "US/Eastern"
+        },
+        "Time Series (5min)": {
+            "2022-11-15 16:15:00": {
+                "1. open": "144.3400",
+                "2. high": "144.3400",
+                "3. low": "144.3400",
+                "4. close": "144.3400",
+                "5. volume": "4464"
+            },
+            "2022-11-15 16:05:00": {
+                "1. open": "144.3400",
+                "2. high": "144.3400",
+                "3. low": "144.3400",
+                "4. close": "144.3400",
+                "5. volume": "159775"
+            },
+            "2022-11-15 16:00:00": {
+                "1. open": "144.0000",
+                "2. high": "144.3600",
+                "3. low": "144.0000",
+                "4. close": "144.3300",
+                "5. volume": "188048"
+            }
+        }
+    }"#;
+
+    let res: Result<intraday::TimeSeries, serde_json::Error> =
+        serde_json::from_str(time_series_5min_daily);
+    if res.is_err() {
+        res.as_ref().unwrap();
+    }
+
+    let u_res = res.unwrap();
+
+    assert_eq!(u_res.time_series_5min["2022-11-15 16:15:00"].volume, 4464);
+
+    let diff = u_res.time_series_5min["2022-11-15 16:15:00"].close - 144.3400;
+    assert!(diff.abs() < f32::EPSILON);
 }

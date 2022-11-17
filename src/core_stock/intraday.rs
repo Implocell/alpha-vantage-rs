@@ -3,15 +3,14 @@ use std::collections::HashMap;
 
 use crate::utils::{de_from_str_to_float, de_from_str_to_int};
 
-
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeSeries {
     #[serde(rename(deserialize = "Meta Data", serialize = "metaData"))]
     pub meta_data: MetaData,
-    #[serde(rename(deserialize = "Time Series (5min)", serialize = "timeSeries"))]
-    pub time_series_5min: HashMap<String, TimeSeriesItem>,
-}
+    #[serde(rename(serialize = "timeSeries"), flatten)]
+    pub time_series: HashMap<String, HashMap<String, TimeSeriesItem>>,
+} 
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
